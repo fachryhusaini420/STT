@@ -98,3 +98,28 @@ contract SphereTrackUtilToken {
                 _allowances[from][msg.sender] = allowed - amount;
             }
             emit Approval(from, msg.sender, _allowances[from][msg.sender]);
+        }
+
+        _transfer(from, to, amount);
+        return true;
+    }
+
+    // ─── permit (EIP-2612) ────────────────────────────────────────────────────
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        if (owner == address(0) || spender == address(0)) revert SPTU_ZeroAddress();
+        if (block.timestamp > deadline) revert SPTU_Expired();
+
+        uint256 nonce = nonces[owner];
+
+        bytes32 structHash = keccak256(abi.encode(
+            PERMIT_TYPEHASH,
+            owner,
