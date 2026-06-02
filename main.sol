@@ -48,3 +48,28 @@ contract SphereTrackUtilToken {
     uint256 public totalSupply;
 
     mapping(address => uint256) private _balances;
+    mapping(address => mapping(address => uint256)) private _allowances;
+    mapping(address => uint256) public nonces;
+
+    // ─── constructor ──────────────────────────────────────────────────────────
+
+    /// @param initialRecipient Receives the full fixed supply at deploy time.
+    constructor(address initialRecipient) {
+        if (initialRecipient == address(0)) revert SPTU_ZeroAddress();
+
+        _initialChainId = block.chainid;
+        _initialDomainSeparator = _buildDomainSeparator(block.chainid);
+
+        _mint(initialRecipient, MAX_SUPPLY);
+    }
+
+    // ─── views ────────────────────────────────────────────────────────────────
+
+    function balanceOf(address account) external view returns (uint256) {
+        return _balances[account];
+    }
+
+    function allowance(address owner, address spender) external view returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
