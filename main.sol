@@ -23,3 +23,28 @@ contract SphereTrackUtilToken {
 
     // ─── token metadata ───────────────────────────────────────────────────────
 
+    string public constant name = "SphereTrack Utility";
+    string public constant symbol = "SPTU";
+    uint8 public constant decimals = 18;
+
+    uint256 public constant MAX_SUPPLY = 500_000_000 * 10 ** uint256(decimals);
+
+    // ─── EIP-2612 permit ──────────────────────────────────────────────────────
+
+    bytes32 public constant PERMIT_TYPEHASH =
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+
+    bytes32 private constant _EIP712_DOMAIN_TYPEHASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
+    bytes32 private constant _EIP712_VERSION_HASH = keccak256("1");
+    bytes32 private constant _EIP712_NAME_HASH = keccak256(bytes(name));
+
+    uint256 private immutable _initialChainId;
+    bytes32 private immutable _initialDomainSeparator;
+
+    // ─── state ────────────────────────────────────────────────────────────────
+
+    uint256 public totalSupply;
+
+    mapping(address => uint256) private _balances;
