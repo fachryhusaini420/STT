@@ -73,3 +73,28 @@ contract SphereTrackUtilToken {
         return _allowances[owner][spender];
     }
 
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        if (block.chainid == _initialChainId) return _initialDomainSeparator;
+        return _buildDomainSeparator(block.chainid);
+    }
+
+    // ─── ERC20 core ───────────────────────────────────────────────────────────
+
+    function transfer(address to, uint256 amount) external returns (bool) {
+        _transfer(msg.sender, to, amount);
+        return true;
+    }
+
+    function approve(address spender, uint256 amount) external returns (bool) {
+        _approve(msg.sender, spender, amount);
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+        uint256 allowed = _allowances[from][msg.sender];
+        if (allowed != type(uint256).max) {
+            if (allowed < amount) revert SPTU_InsufficientAllowance();
+            unchecked {
+                _allowances[from][msg.sender] = allowed - amount;
+            }
+            emit Approval(from, msg.sender, _allowances[from][msg.sender]);
