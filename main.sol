@@ -173,3 +173,28 @@ contract SphereTrackUtilToken {
         uint256 bal = _balances[from];
         if (bal < amount) revert SPTU_InsufficientBalance();
 
+        unchecked {
+            _balances[from] = bal - amount;
+            _balances[to] += amount;
+        }
+
+        emit Transfer(from, to, amount);
+    }
+
+    function _approve(address owner, address spender, uint256 amount) internal {
+        if (owner == address(0) || spender == address(0)) revert SPTU_ZeroAddress();
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+    function _mint(address to, uint256 amount) internal {
+        if (to == address(0)) revert SPTU_ZeroAddress();
+        totalSupply += amount;
+        unchecked {
+            _balances[to] += amount;
+        }
+        emit Transfer(address(0), to, amount);
+    }
+
+    function _burn(address from, uint256 amount) internal {
+        if (from == address(0)) revert SPTU_ZeroAddress();
