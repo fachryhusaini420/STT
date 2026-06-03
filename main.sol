@@ -123,3 +123,28 @@ contract SphereTrackUtilToken {
         bytes32 structHash = keccak256(abi.encode(
             PERMIT_TYPEHASH,
             owner,
+            spender,
+            value,
+            nonce,
+            deadline
+        ));
+
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19\x01",
+            DOMAIN_SEPARATOR(),
+            structHash
+        ));
+
+        address recovered = ecrecover(digest, v, r, s);
+        if (recovered == address(0) || recovered != owner) revert SPTU_BadSig();
+
+        unchecked {
+            nonces[owner] = nonce + 1;
+        }
+
+        _approve(owner, spender, value);
+    }
+
+    // ─── burn convenience ─────────────────────────────────────────────────────
+
+    function burn(uint256 amount) external returns (bool) {
