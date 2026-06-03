@@ -148,3 +148,28 @@ contract SphereTrackUtilToken {
     // ─── burn convenience ─────────────────────────────────────────────────────
 
     function burn(uint256 amount) external returns (bool) {
+        _burn(msg.sender, amount);
+        return true;
+    }
+
+    function burnFrom(address from, uint256 amount) external returns (bool) {
+        uint256 allowed = _allowances[from][msg.sender];
+        if (allowed != type(uint256).max) {
+            if (allowed < amount) revert SPTU_InsufficientAllowance();
+            unchecked {
+                _allowances[from][msg.sender] = allowed - amount;
+            }
+            emit Approval(from, msg.sender, _allowances[from][msg.sender]);
+        }
+        _burn(from, amount);
+        return true;
+    }
+
+    // ─── internals ───────────────────────────────────────────────────────────
+
+    function _transfer(address from, address to, uint256 amount) internal {
+        if (to == address(0) || from == address(0)) revert SPTU_ZeroAddress();
+
+        uint256 bal = _balances[from];
+        if (bal < amount) revert SPTU_InsufficientBalance();
+
